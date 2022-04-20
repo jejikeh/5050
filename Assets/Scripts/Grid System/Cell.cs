@@ -5,88 +5,64 @@ using UnityEngine;
 [RequireComponent(typeof(SpriteRenderer))]
 public class Cell : MonoBehaviour
 {
-    public int _value;
-    public bool _r;
-    [SerializeField] public Vector2 Position;
-    public void Create(int value,Vector2 position, GameObject cellObject)
+    private int _value = 0;
+    private bool _canBeSet = false;
+    private int _index;
+
+    public int Index { get { return _index; } }
+    public bool CabBeSet { get { return _canBeSet; } }
+
+
+
+
+    //[SerializeField] public Vector2 Position;
+
+
+    public Cell Create(int value, int index ,Vector2 position)
     {
-        Position = position;
         _value = value;
-        cellObject.transform.position = Position;
+        _index = index;
+        transform.position = position;
+        return this;
+    }
+
+
+    private void ChangeCellColor(Color color)
+    {
+        gameObject.GetComponent<SpriteRenderer>().color = color;
+    }
+
+    public void SetCellValue(int value, Color color) // Set value of the cell and recolor it
+    {
+        _value = value;
+        ChangeCellColor(color);
+    }
+
+    public void MarkCell(bool canBeSet,Color color)
+    {
+        _canBeSet = canBeSet;
+        ChangeCellColor(color);
+    }
+
+    public void ClearCell()
+    {
+        _value = 0;
+        ChangeCellColor(Color.clear);
     }
     
-
-    public void FillCell(List<Cell> _grid,int value,Color color)
+    private int ReturnIndex()
     {
-        _value = value;
-        GetComponent<SpriteRenderer>().color = color;
-        GetAviableCells(_grid, this.transform.position);
-        
+        return _index;
     }
-    private void GetAviableCells(List<Cell> _grid,Vector2 position)
+
+    public delegate void CellCallback(int index);
+    public event CellCallback CellIsClicked;
+
+    void OnMouseDown()
     {
-        foreach (Cell cell in _grid)
+        if (_canBeSet)
         {
-            if (cell.Position.x + 2 == position.x && cell.Position.y + 1 == position.y || cell.Position.x + 1 == position.x && cell.Position.y + 2 == position.y || cell.Position.x - 1 == position.x && cell.Position.y + 2 == position.y || cell.Position.x - 2 == position.x && cell.Position.y + 1 == position.y || cell.Position.x - 2 == position.x && cell.Position.y - 1 == position.y || cell.Position.x - 1 == position.x && cell.Position.y - 2 == position.y || cell.Position.x + 1 == position.x && cell.Position.y - 2 == position.y || cell.Position.x + 2 == position.x && cell.Position.y - 1 == position.y && cell._r == false)
-            {
-                cell.ColorCell(Color.yellow);
-            }
-            else if(cell.Position.x > -3 && cell.Position.x < 3 && cell.Position.y > -3 && cell.Position.y < 3)
-            {
-                cell.ColorCell(Color.white);
-            }else
-            {
-                cell.ColorCell(Color.red);
-            }
-
-            if (cell.Position == position)
-            {
-                cell.ColorCell(Color.green);
-            }
-
-            if(cell._r == true)
-            {
-                cell.ColorCell(Color.black);
-            }
+            CellIsClicked?.Invoke(Index);
         }
-    }
-
-    public void FindGreen()
-    {
-        foreach (Cell cell in GridManager._grid)
-        {
-            if(cell.GetComponent<SpriteRenderer>().color == Color.green)
-            {
-                cell._r = true;
-            }
-        }
-    }
-
-    public void OnMouseDown()
-    {
-        if (GetComponent<SpriteRenderer>().color == Color.yellow)
-        {
-            if (Position.x > -3 && Position.x < 3 && Position.y > -3 && Position.y < 3)
-            {
-                FindGreen();
-                GridManager.Value++;
-                Debug.Log(GridManager.Value);
-                FillCell(GridManager._grid, GridManager.Value, Color.yellow);
-
-            }else
-            {
-                FindGreen();
-                GridManager.Value--;
-                Debug.Log(GridManager.Value);
-                FillCell(GridManager._grid, GridManager.Value, Color.yellow);
-            }
-        }
-
-        
-    }
-
-    public void ColorCell(Color color)
-    {
-        GetComponent<SpriteRenderer>().color = color;
     }
 }
