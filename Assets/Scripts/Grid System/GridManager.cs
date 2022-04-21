@@ -5,96 +5,132 @@ using UnityEngine;
 public class GridManager : MonoBehaviour
 {
     [SerializeField] private GameObject _cellPrefab;
-    [SerializeField] private int _row, _column;
-    [SerializeField] public static int Value = 1;
-
+    [SerializeField] private int _maxRow, _maxColumn;
+    [HideInInspector] private int _score = 0;
 
     private List<Cell> _grid = new List<Cell>();
-    
-    private void InitGrid()
+
+    [System.Serializable]
+    public class CellSettings
     {
-        for(int i = _row; i > 0; i--)
+        public bool CanSet;
+        public Color Color;
+
+        public CellSettings(bool canSet, Color color)
         {
-            for(int j = 0; j < _column; j++) // ???????? ??? ?.? ??? ???????
+            CanSet = canSet;
+            Color = color;
+        }
+
+    }
+    [SerializeField] private CellSettings _unsetCellButCanBe = new CellSettings(true, Color.yellow);
+    [SerializeField] private CellSettings _unsetCellButCantBe = new CellSettings(false, Color.red);
+    [SerializeField] private CellSettings _setCellButCanBe = new CellSettings(true, Color.gray);
+    [SerializeField] private CellSettings _setCellButCantBe = new CellSettings(false, Color.black);
+    [SerializeField] private CellSettings _selectedCell = new CellSettings(false, Color.green);
+
+
+    private void Start()
+    {
+        InitGrid(Random.Range(3,_maxRow), Random.Range(3, _maxColumn));
+    }
+
+    private void InitGrid(int row, int column)
+    {
+        foreach (Cell cell in _grid)
+        {
+            cell.DeleteCell();
+            cell.ClearCell();
+        }
+
+        _score = 0;
+        _grid = new List<Cell>();
+
+        for (int i = row; i > 0; i--) // 
+        {
+            for(int j = 0; j < column; j++) // 
             {
                 if(_cellPrefab.GetComponent<Cell>())
                 {
                     GameObject cell = Instantiate(_cellPrefab); // Create a new Instance
-                    _grid.Add(cell.GetComponent<Cell>().Create(0,_grid.Count,new Vector2(j - (_row/2) + 0.5f , i - (_column/2) - 0.5f)));
+                    _grid.Add(cell.GetComponent<Cell>().Create(_score,_grid.Count,new Vector2(j - (row/2) + 0.5f , i - (column/2) - 0.5f)));
+                    //SubscribeToEventOnClick();
+                    cell.GetComponent<Cell>().CellIsClicked += Cell_CellIsClicked;
                 }
             }
         }
+
+        SetCell(-1);
     }
 
     public void SetCell(int index)
     {
         if (index < 0)
         {
-            _grid[Random.Range(0, _column * _row)].SetCellValue(Value, Color.green);
-            CheckAviableCells(_grid[Random.Range(0, _column * _row)]);
+            int randomIndex = Random.Range(0, _grid.Count);
+            _grid[randomIndex].SetCellValue(1, Color.green);
+            CheckAviableCells(randomIndex);
         }else
         {
-            _grid[index].SetCellValue(Value, Color.green);
-            CheckAviableCells(_grid[index]);
+            _grid[index].SetCellValue(_score, Color.green);
+            CheckAviableCells(index);
 
         }
     }
 
-    public void CheckAviableCells(Cell selectedCell) // 
+    public void CheckAviableCells(int index) // 
     {
-        foreach(Cell cell in _grid)
+        for(int i = 0; i < _grid.Count; i++) // 
         {
-            if(cell == selectedCell)
+            if (Mathf.Abs(_grid[index].transform.position.x - _grid[i].transform.position.x) == 1 && // check letter L
+                Mathf.Abs(_grid[index].transform.position.y - _grid[i].transform.position.y) == 2 ||
+                Mathf.Abs(_grid[index].transform.position.x - _grid[i].transform.position.x) == 2 &&
+                Mathf.Abs(_grid[index].transform.position.y - _grid[i].transform.position.y) == 1)
             {
-                for(int i = 0; i < _grid.Count; i++) // ??????? ??????
+                if (_grid[i].Value == 0)
                 {
-                    if(Mathf.Abs(cell.transform.position.x - _grid[i].transform.position.x) == 1 && // ???????? ?????? ?
-                       Mathf.Abs(cell.transform.position.y - _grid[i].transform.position.y) == 2 || 
-                       Mathf.Abs(cell.transform.position.x - _grid[i].transform.position.x) == 2 &&
-                       Mathf.Abs(cell.transform.position.y - _grid[i].transform.position.y) == 1 )
-                    {
-                        _grid[i].MarkCell(true,Color.yellow);
-
-                    }
-                    else if (Mathf.Abs(cell.transform.position.x - _grid[i].transform.position.x) == 0 && // ???? ????????? ??????
-                             Mathf.Abs(cell.transform.position.y - _grid[i].transform.position.y) == 0 )
-                    {
-                        _grid[i].MarkCell(false, Color.green);
-                    }
-                    else // ??? ?????????
-                    {
-                        _grid[i].MarkCell(false, Color.red);
-                    }
+                    _grid[i].MarkCell(_unsetCellButCanBe);
                 }
+                else
+                {
+                    _grid[i].MarkCell(_setCellButCanBe);
+                }
+            }
+            else if (Mathf.Abs(_grid[index].transform.position.x - _grid[i].transform.position.x) == 0 &&
+                     Mathf.Abs(_grid[index].transform.position.y - _grid[i].transform.position.y) == 0)
+            {
+                _grid[i].MarkCell(_selectedCell);
+            }
+            else if (_grid[i].Value != 0)
+            {
+                _grid[i].MarkCell(_setCellButCantBe);
+            }
+            else // 
+            {
+                _grid[i].MarkCell(_unsetCellButCantBe);
             }
         }
     }
-
-    private void Start()
-    {
-        InitGrid();
-        SetCell(-1);
-    }
-
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.R))
         {
-            foreach(Cell cell in _grid)
-            {
-                cell.ClearCell();
-            }
-            SetCell(-1);
+            InitGrid(Random.Range(3, _maxRow), Random.Range(3, _maxColumn));
         }
-
-        foreach(Cell cell in _grid)
-        {
-            cell.CellIsClicked += Cell_CellIsClicked;
-        }
+        
+        
     }
 
     private void Cell_CellIsClicked(int index)
     {
+        if(_grid[index].Value == 0)
+        {
+            _score++;        
+        }else
+        {
+            _score--;
+        }
         SetCell(index);
+        // Debug.Log(_score);
     }
 }

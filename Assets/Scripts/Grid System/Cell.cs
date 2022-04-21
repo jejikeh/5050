@@ -5,17 +5,12 @@ using UnityEngine;
 [RequireComponent(typeof(SpriteRenderer))]
 public class Cell : MonoBehaviour
 {
-    private int _value = 0;
+    [SerializeField] private int _value = 0;
     private bool _canBeSet = false;
     private int _index;
 
     public int Index { get { return _index; } }
-    public bool CabBeSet { get { return _canBeSet; } }
-
-
-
-
-    //[SerializeField] public Vector2 Position;
+    public int Value { get { return _value; } }
 
 
     public Cell Create(int value, int index ,Vector2 position)
@@ -35,13 +30,14 @@ public class Cell : MonoBehaviour
     public void SetCellValue(int value, Color color) // Set value of the cell and recolor it
     {
         _value = value;
+        Debug.Log(_value);
         ChangeCellColor(color);
     }
 
-    public void MarkCell(bool canBeSet,Color color)
+    public void MarkCell(GridManager.CellSettings cellSettings)
     {
-        _canBeSet = canBeSet;
-        ChangeCellColor(color);
+        _canBeSet = cellSettings.CanSet;
+        ChangeCellColor(cellSettings.Color);
     }
 
     public void ClearCell()
@@ -50,9 +46,9 @@ public class Cell : MonoBehaviour
         ChangeCellColor(Color.clear);
     }
     
-    private int ReturnIndex()
+    public void DeleteCell()
     {
-        return _index;
+        Destroy(this.gameObject);
     }
 
     public delegate void CellCallback(int index);
