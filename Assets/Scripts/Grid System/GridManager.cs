@@ -10,7 +10,7 @@ public class GridManager : MonoBehaviour
     private int _score = 0;
     public int Score { get { return _score; } }
 
-    private List<List<Cell>> _grid = new List<List<Cell>>();
+    private List<Cell> _grid = new List<Cell>();
 
     [System.Serializable]
     public class CellSettings
@@ -46,38 +46,37 @@ public class GridManager : MonoBehaviour
         }
 
         _score = 0;
-        _grid = new List<List<Cell>>();
+        _grid = new List<Cell>();
 
         for (int i = 0; i < row; i++) // 
         {
-            _grid.Add(new List<Cell>());
             for(int j = 0; j < column; j++) // 
             {
                 if(_cellPrefab.GetComponent<Cell>())
                 {
                     GameObject cell = Instantiate(_cellPrefab); // Create a new Instance
-                    _grid[i].Add(cell.GetComponent<Cell>().Create(_score,_grid.Count,new Vector2(transform.position.x + j,transform.position.y - i)));
+                    _grid.Add(cell.GetComponent<Cell>().Create(_score,_grid.Count,new Vector2(transform.position.x + j,transform.position.y - i)));
                     //SubscribeToEventOnClick();
                     cell.GetComponent<Cell>().CellIsClicked += Cell_CellIsClicked;
                 }
             }
         }
-        _camera.transform.position = new Vector3(row / 2,column/2, -10);
+        _camera.transform.position = new Vector3(row/2,-column/2, -10);
 
         SetCell(-1);
     }
 
-    public void SetCell(int row,int collumn)
+    public void SetCell(int index)
     {
-        if (row < 0)
+        if (index < 0)
         {
             int randomIndex = Random.Range(0, _grid.Count);
-            _grid[randomIndex][Random.Range(0,_grid[randomIndex].Count)].SetCellValue(1, Color.green);
+            _grid[randomIndex].SetCellValue(1, Color.green);
             CheckAviableCells(randomIndex);
         }else
         {
-            _grid[row][collumn].SetCellValue(_score, Color.green);
-            CheckAviableCells();
+            _grid[index].SetCellValue(_score, Color.green);
+            CheckAviableCells(index);
 
         }
     }
