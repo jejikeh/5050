@@ -30,7 +30,7 @@ public class Cell : MonoBehaviour
     public void SetCellValue(int value, Color color) // Set value of the cell and recolor it
     {
         _value = value;
-        Debug.Log(_value);
+        //Debug.Log(_value);
         ChangeCellColor(color);
     }
 

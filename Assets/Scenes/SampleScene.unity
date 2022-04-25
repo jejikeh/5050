@@ -426,7 +426,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f4ba7b2cf905034491748e4f17f476e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _gridManager: {fileID: 0}
+  _gridManager: {fileID: 8818889322007518164, guid: 69c84d8572eb3e94698309305ca17993, type: 3}
 --- !u!114 &1561055077
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -460,7 +460,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: New Text
+  m_Text: h
 --- !u!222 &1561055078
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -524,6 +524,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8818889322007518171, guid: 69c84d8572eb3e94698309305ca17993, type: 3}
+      propertyPath: _camera
+      value: 
+      objectReference: {fileID: 519420031}
     - target: {fileID: 8818889322007518171, guid: 69c84d8572eb3e94698309305ca17993, type: 3}
       propertyPath: _maxRow
       value: 10

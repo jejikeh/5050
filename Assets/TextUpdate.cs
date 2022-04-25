@@ -5,11 +5,11 @@ using UnityEngine.UI;
 
 public class TextUpdate : MonoBehaviour
 {
-    [SerializeField] private GridManager _gridManager;
+    [SerializeField] private GameObject _gridManager;
+    private GridManager _gm;
     void Start()
     {
-        _gridManager = GetComponent<GridManager>();
+        _gm = _gridManager.GetComponent<GridManager>();
     }
 
-    // Update is 
 }
